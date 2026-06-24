@@ -1,8 +1,8 @@
 # Data Cleaning Summary
 
 **Dataset:** CanAI Café Transactions (`data/raw/Team A CanAI Cafe dataset.xlsx`)
-**Cleaned by:** Member A
-**Date:** *(fill in when notebook is run)*
+**Cleaned by:** Monish K, Abrarul M.
+**Date:** Wed June 24, 2026
 **Notebook:** `notebooks/01_data_cleaning.ipynb`
 **Audit log:** `data/clean/cleaning_audit_log.csv`
 
