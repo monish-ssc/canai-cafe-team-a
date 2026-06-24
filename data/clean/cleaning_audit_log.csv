@@ -1,0 +1,19 @@
+Step,Column,Issue,Action,Rows Affected,Notes
+4a,All columns,Empty / whitespace-only string cells,Replaced with NaN,397,Regex replacement catches both empty strings and space-only cells
+4b,Item,Null item name,Row dropped,100,Cannot identify product — row has no analytical value
+4c,Quantity,Null quantity,Row dropped,98,Revenue calculation requires quantity
+4d,Transaction Date,Null date,Row dropped,211,Date is required for forecasting — row excluded
+4e,Payment Method,Null payment method,Filled with 'Unknown',507,Payment channel not always recorded; row retained
+4f,Location,Null location,Filled with 'Unknown',844,Location not always captured; row retained
+4g,Province,Null province,Filled with 'Unknown',396,Will be standardised in step 7
+5a,All columns,Fully duplicate rows,Dropped,0,
+5b,Transaction ID,84 rows share a non-unique Transaction ID,Rows retained — surrogate Row_ID added,0,Different items/dates confirm separate transactions with colliding IDs
+6a,Payment Method,Error code 'ERR_PM_102',Replaced with 'Unknown',26,Error code present in raw data — treated as missing payment method
+7a,Item,Typos / case variants,Mapped to canonical name,1235,16 dirty variants normalised to 5 canonical products
+7b,Province,Abbreviations / typos / case variants,Mapped to full official province name,3392,Ontario rows retained but outside expected 4-province scope — flag for team review
+7c,Transaction Date,Stored as string/object dtype,Parsed to datetime64,9591,24 row(s) became NaT from unparseable strings
+7c-drop,Transaction Date,Unparseable date string → NaT,Row dropped,24,
+7e,Quantity,Object dtype,Cast to int64,9567,Entire column converted
+8a,Total Spent,0 mismatch(es) vs Quantity × Price Per Unit,No action required,0,Derived column validated post-cleaning
+8b,Transaction Date,0 date(s) outside 2023,No action required,0,Dataset is expected to cover fiscal year 2023 only
+8c,Quantity,0 value(s) outside expected range 1-5,No action required,0,Café orders expected to be 1-5 items per transaction
