@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/canai-cafe-team-a/mlruns/519290772170710294/f9afeb60803545669ad2fec7d71a026b/artifacts
+end_time: 1782415593705
+entry_point_name: ''
+experiment_id: '519290772170710294'
+lifecycle_stage: active
+run_id: f9afeb60803545669ad2fec7d71a026b
+run_name: prophet_cv
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1782415590164
+status: 3
+tags: []
+user_id: KamwalM1

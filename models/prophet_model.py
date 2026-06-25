@@ -18,11 +18,12 @@ MODEL_NAME = "prophet"
 
 # Hyperparameters — tune here, they are logged automatically on every run
 PARAMS = {
-    "yearly_seasonality": True,
+    "yearly_seasonality": False,    # disabled: only 1 year of history, can't fit annual cycle reliably
     "weekly_seasonality": True,
     "daily_seasonality": False,
     "seasonality_mode": "additive",
     "interval_width": 0.95,
+    "n_changepoints": 15,           # reduced from default 25 to limit trend overfitting on 365-day series
 }
 
 
