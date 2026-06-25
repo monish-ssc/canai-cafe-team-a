@@ -2,7 +2,7 @@
 CanAI Cafe - SARIMA forecasting model.
 
 Receives a prepared daily revenue Series and a TimeSeriesSplit object.
-Uses SARIMA(0,1,1)(0,1,1)[7] - the "airline model" configuration.
+Uses SARIMA(1,0,1)(1,1,0)[7] as the default configuration.
 
 Reference: docs/model_selection_rationale.md S5.2
 """
@@ -18,8 +18,8 @@ MODEL_NAME = "sarima"
 
 # Hyperparameters — tune here, they are logged automatically on every run
 PARAMS = {
-    "order": (0, 1, 1),          # (p, d, q)
-    "seasonal_order": (0, 1, 1, 7),  # (P, D, Q, period)
+    "order": (1, 0, 1),          # (p, d, q)
+    "seasonal_order": (1, 1, 0, 7),  # (P, D, Q, period)
     "enforce_stationarity": True,
     "enforce_invertibility": True,
 }
