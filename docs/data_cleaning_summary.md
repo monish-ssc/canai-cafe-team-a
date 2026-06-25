@@ -63,7 +63,7 @@
 | Newfoundland and Labrador | `Newfoundland`, `New Foundland`, `NFLD`, `NL`, `newfoundland and labrador`, `NEWFOUNDLAND`, `newfoundland`, `Newfoundlan` |
 | Saskatchewan | `Saskatchewn`, `Sask.`, `SK`, `SASKATCHEWAN`, `Sasktchewan`, `Saskatchewa`, `saskatchewan` |
 | Manitoba | `Manitba`, `MB`, `MANITOBA`, `Manitobaa`, `Manitob`, `mb`, `manitoba` |
-| Ontario | `Ont.`, `ON`, `ontario`, `Ontaroi`, `Ontairo` — ⚠ flagged (see caveats) |
+| Ontario | `Ont.`, `ON`, `ontario`, `Ontaroi`, `Ontairo` |
 
 ---
 
@@ -83,7 +83,7 @@
 
 ## Known Caveats & Limitations
 
-- **Ontario rows:** A small number of transactions show `Province = 'Ontario'`, which is outside the expected 4-province scope (BC, MB, SK, NL). These are retained with a warning — verify with the data source before including in provincial analysis.
+- **Ontario rows:** 18 transactions show `Province = 'Ontario'`. Ontario is a valid province — the café has a physical location there — so these rows are fully in scope and included without any flag.
 - **Duplicate Transaction IDs:** 84 rows (~0.88% of the dataset) shared a non-unique Transaction ID. Because `Transaction ID` is the primary key, collisions cannot be validated — in a real-world context this can indicate **fraudulent activity** (a reused ID to obscure duplicate charges) or **corrupted data** (a broken ID-generation sequence). Since there is no way to determine which case applies from the data alone, all 84 affected rows were dropped to avoid including potentially fraudulent or corrupted records in analysis. Data-loss impact is negligible. A surrogate `Row_ID` column is still added for downstream joins.
 - **`'Unknown'` values:** ~5–9% of rows have unknown payment method or location after filling. Analyses that filter or group on these fields will undercount due to the `'Unknown'` group — note this in any visuals.
 - **`Total Spent` is a derived column:** It equals `Quantity × Price Per Unit` exactly for all valid rows. It was not recalculated — only validated.
