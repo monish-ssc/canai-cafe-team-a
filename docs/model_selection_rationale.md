@@ -327,11 +327,22 @@ print(f"Fold MAEs: {[round(m, 2) for m in fold_maes]}")
 
 **For Prophet and SARIMA**, which require a contiguous series, cross-validation is implemented by re-fitting the model on the training slice of each fold and then forecasting the test window directly — not by selecting rows.
 
-### 6.3 Final training for forecast
+### 6.3 Consistent split across all three models
+
+The same 5-fold `TimeSeriesSplit` is applied to all three models. A different split strategy per model was considered but rejected: if the test windows differ, any difference in MAPE could be explained by the data each model happened to be tested on rather than by the model itself. Keeping the split identical isolates the model as the only variable and makes the per-fold MAEs directly comparable.
+
+What does vary per model is the *mechanics* of applying the split, not the data:
+
+- **Prophet / SARIMA** — each fold's training slice is passed as a contiguous time series; the model forecasts the test window directly.
+- **XGBoost** — the same date range is used, but the training slice is presented as a feature matrix (lag values, calendar features, etc.).
+
+Using different split strategies per model would be appropriate if the goal were hyperparameter tuning for a single model (e.g., testing whether SARIMA performs better with a longer warm-up window). That is a separate question from "which of these three models generalises best to this data."
+
+### 6.5 Final training for forecast
 
 Once cross-validation confirms acceptable performance, **all 365 days of 2023 data are used to train the final model** before generating the 6-month forward forecast. No data is held back at inference time — the full history improves parameter estimates for the real forecast.
 
-### 6.4 Metrics
+### 6.6 Metrics
 
 | Metric | Formula | Interpretation |
 |--------|---------|----------------|
