@@ -1,0 +1,14 @@
+artifact_uri: file:///c:/canai-cafe-team-a/mlruns/519290772170710294/09164c0e994c4a40b27900795ce330fc/artifacts
+end_time: 1782413239594
+entry_point_name: ''
+experiment_id: '519290772170710294'
+lifecycle_stage: active
+run_id: 09164c0e994c4a40b27900795ce330fc
+run_name: sarima_cv
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1782413239488
+status: 4
+tags: []
+user_id: KamwalM1
