@@ -10,7 +10,7 @@ Step,Column,Issue,Action,Rows Affected,Notes
 5b,Transaction ID,84 rows share a non-unique Transaction ID,"Rows dropped — primary key collision, cannot validate integrity",84,Source-system ID collision; <1% of dataset — excluded for data integrity
 6a,Payment Method,Error code 'ERR_PM_102',Replaced with 'Unknown',26,Error code present in raw data — treated as missing payment method
 7a,Item,Typos / case variants,Mapped to canonical name,1226,16 dirty variants normalised to 5 canonical products
-7b,Province,Abbreviations / typos / case variants,Mapped to full official province name,3360,Ontario rows retained but outside expected 4-province scope — flag for team review
+7b,Province,Abbreviations / typos / case variants,Mapped to full official province name,3360,Ontario is a valid province — café has a physical location there
 7c,Transaction Date,Stored as string/object dtype,Parsed to datetime64,9507,24 row(s) became NaT from unparseable strings
 7c-drop,Transaction Date,Unparseable date string → NaT,Row dropped,24,
 7e,Quantity,Object dtype,Cast to int64,9483,Entire column converted
