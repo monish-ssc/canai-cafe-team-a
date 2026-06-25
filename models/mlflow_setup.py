@@ -23,6 +23,9 @@ Then open http://localhost:5000
 import os
 import mlflow
 
+# MLflow ≥ 2.x requires this to keep using the local file store
+os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
+
 _MODELS_DIR = os.path.dirname(os.path.abspath(__file__))
 _PROJECT_ROOT = os.path.dirname(_MODELS_DIR)
 

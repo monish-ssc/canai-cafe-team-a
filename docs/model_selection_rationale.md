@@ -145,23 +145,33 @@ y(t) = trend(t) + seasonality(t) + holidays(t) + noise(t)
 from prophet import Prophet
 
 m = Prophet(
-    yearly_seasonality=True,
+    yearly_seasonality=False,  # disabled: only 1 year of history, cannot fit annual cycle reliably
     weekly_seasonality=True,
     daily_seasonality=False,   # no sub-daily data
     seasonality_mode='additive',
-    interval_width=0.95
+    interval_width=0.95,
+    n_changepoints=15,         # reduced from default 25 to limit trend overfitting on 365-day series
 )
+m.add_country_holidays(country_name="CA")
 m.fit(df_prophet)  # columns: ds, y
 future = m.make_future_dataframe(periods=180)
 forecast = m.predict(future)
 ```
 
 **Limitations:**
-- Annual seasonality estimate is unreliable with only 1 year of history — wide CIs expected.
 - No native multi-step exogenous regressor support (would need manual regressor forecasts).
 - Black-box trend changepoints may over-fit on a short series if `n_changepoints` is not tuned.
 
-**Mitigation:** Disable `yearly_seasonality` or use `seasonality_prior_scale=0.1` to down-weight it.
+**CV Results (5-fold walk-forward, 30-day test windows):**
+
+Disabling `yearly_seasonality` and reducing `n_changepoints` to 15 produced a large jump in all metrics:
+
+| Configuration | Mean MAE | Mean RMSE | Mean MAPE |
+|---------------|----------|-----------|-----------|
+| `yearly_seasonality=True`, `n_changepoints=25` (default) | $58.60 | $73.74 | 36.09% |
+| `yearly_seasonality=False`, `n_changepoints=15` | **$44.06** | **$55.44** | **25.89%** |
+
+The biggest gains were in December (−16.4 pp MAPE) and October (−12.4 pp MAPE) — the folds most affected by annual extrapolation over unseen seasonal territory. Every fold improved. Mean MAPE remains above the 20% acceptance threshold; the final model selection will depend on SARIMA and XGBoost results for comparison.
 
 ---
 

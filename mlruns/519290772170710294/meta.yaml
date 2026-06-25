@@ -1,0 +1,9 @@
+artifact_location: file:///c:/canai-cafe-team-a/mlruns/519290772170710294
+creation_time: 1782410884827
+effective_trace_archival_retention: null
+experiment_id: '519290772170710294'
+last_update_time: 1782410884827
+lifecycle_stage: active
+name: canai-cafe-forecasting
+trace_location: null
+workspace: default
