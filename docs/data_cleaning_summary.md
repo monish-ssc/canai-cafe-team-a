@@ -16,7 +16,7 @@
 | Total columns | 9 |
 | Columns with nulls | 6 — Item, Quantity, Payment Method, Location, Transaction Date, Province |
 | Fully duplicate rows | 0 |
-| Duplicate Transaction IDs | 84 rows across colliding IDs (different transactions, not duplicates) |
+| Duplicate Transaction IDs | 84 rows across colliding IDs — source-system primary key collision |
 
 ---
 
@@ -32,7 +32,7 @@
 | 4f | Location | 690 null values | Filled with `'Unknown'` | 690 |
 | 4g | Province | 336 null values | Filled with `'Unknown'` | 336 |
 | 5a | All columns | Fully duplicate rows | Dropped | 0 (none found) |
-| 5b | Transaction ID | 84 rows share a non-unique Transaction ID | Rows retained; `Row_ID` surrogate key added | 0 removed |
+| 5b | Transaction ID | 84 rows share a non-unique Transaction ID | Rows dropped — primary key collision cannot be validated; <1% of dataset | 84 |
 | 6a | Payment Method | `ERR_PM_102` error code | Replaced with `'Unknown'` | 26 |
 | 7a | Item | Typos / case variants (cofee, C0ffee, Tee, Donutt, Sandwhich …) | Mapped to canonical name | 1,243 |
 | 7b | Province | Abbreviations / typos / case variants (BC, NL, SK, MB, Saskatchewn …) | Mapped to full official province name | 3,421 |
@@ -71,11 +71,11 @@
 
 | Metric | Value |
 |--------|-------|
-| Total rows | 9,567 |
+| Total rows | 9,483 |
 | Total columns | 10 (original 9 + `Row_ID`) |
 | Remaining nulls | None (nulls either dropped or filled with `'Unknown'`) |
-| Rows removed | 433 |
-| % of rows retained | 95.7% |
+| Rows removed | 517 |
+| % of rows retained | 94.8% |
 
 > **Note:** Re-run `01_data_cleaning.ipynb` top-to-bottom after the whitespace fix to regenerate `data_clean.csv` and `cleaning_audit_log.csv` with these exact counts.
 
@@ -84,7 +84,7 @@
 ## Known Caveats & Limitations
 
 - **Ontario rows:** A small number of transactions show `Province = 'Ontario'`, which is outside the expected 4-province scope (BC, MB, SK, NL). These are retained with a warning — verify with the data source before including in provincial analysis.
-- **Duplicate Transaction IDs:** 84 rows share a non-unique Transaction ID with different items and dates, indicating an ID-generation collision in the source system (not duplicate orders). A surrogate `Row_ID` column was added for downstream joins and Power BI relationships.
+- **Duplicate Transaction IDs:** 84 rows (~0.88% of the dataset) shared a non-unique Transaction ID. Because `Transaction ID` is the primary key, collisions cannot be validated — in a real-world context this can indicate **fraudulent activity** (a reused ID to obscure duplicate charges) or **corrupted data** (a broken ID-generation sequence). Since there is no way to determine which case applies from the data alone, all 84 affected rows were dropped to avoid including potentially fraudulent or corrupted records in analysis. Data-loss impact is negligible. A surrogate `Row_ID` column is still added for downstream joins.
 - **`'Unknown'` values:** ~5–9% of rows have unknown payment method or location after filling. Analyses that filter or group on these fields will undercount due to the `'Unknown'` group — note this in any visuals.
 - **`Total Spent` is a derived column:** It equals `Quantity × Price Per Unit` exactly for all valid rows. It was not recalculated — only validated.
 - **Dropped rows note:** Rows dropped in steps 3b–3d are removed sequentially, so a row missing both Item and Quantity is only counted once (under 3b). Total rows removed is less than the sum of individual column null counts.
