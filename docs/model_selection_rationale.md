@@ -108,12 +108,12 @@ Six model families were considered. The table below summarises the evaluation.
 
 | # | Model | Weekly Seasonality | Annual Seasonality | Handles Covariates | Confidence Intervals | Data Requirement | Verdict |
 |---|-------|-------------------|-------------------|-------------------|---------------------|-----------------|---------|
-| 1 | **Prophet** | Native (Fourier) | Native (but weak here) | Yes (regressors) | Yes (probabilistic) | Low — 1 year sufficient | ✅ **Selected** |
-| 2 | **SARIMA(p,d,q)(P,D,Q)[7]** | Explicit (period=7) | No | No | Yes (parametric) | Medium | ✅ **Selected** |
-| 3 | **XGBoost + lag features** | Via lag-7 features | Via month indicator | Yes (native) | Approximated (quantile) | Low–Medium | ✅ **Selected** |
-| 4 | Holt-Winters (ETS) | Yes (multiplicative) | Limited | No | Yes | Low | ⚠️ Covered by Prophet |
-| 5 | LSTM / RNN | Via memory | Via memory | Yes | No (unless MC) | High — needs 3–5 years | ❌ Insufficient data |
-| 6 | Linear Regression baseline | Via dummies | Via dummies | Yes | Yes | Very low | ⚠️ Benchmark only |
+| 1 | **Prophet** | Native (Fourier) | Native (but weak here) | Yes (regressors) | Yes (probabilistic) | Low — 1 year sufficient | Selected |
+| 2 | **SARIMA(p,d,q)(P,D,Q)[7]** | Explicit (period=7) | No | No | Yes (parametric) | Medium | Selected |
+| 3 | **XGBoost + lag features** | Via lag-7 features | Via month indicator | Yes (native) | Approximated (quantile) | Low–Medium | Selected |
+| 4 | Holt-Winters (ETS) | Yes (multiplicative) | Limited | No | Yes | Low | Not selected — covered by Prophet |
+| 5 | LSTM / RNN | Via memory | Via memory | Yes | No (unless MC) | High — needs 3–5 years | Not selected — insufficient data |
+| 6 | Linear Regression baseline | Via dummies | Via dummies | Yes | Yes | Very low | Not selected — benchmark only |
 
 ---
 
