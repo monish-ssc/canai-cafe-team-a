@@ -21,7 +21,7 @@ PARAMS = {
     "yearly_seasonality": False,    # disabled: only 1 year of history, can't fit annual cycle reliably
     "weekly_seasonality": True,
     "daily_seasonality": False,
-    "seasonality_mode": "additive",
+    "seasonality_mode": "multiplicative",
     "interval_width": 0.95,
     "n_changepoints": 15,           # reduced from default 25 to limit trend overfitting on 365-day series
 }
