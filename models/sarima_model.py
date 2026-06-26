@@ -1,15 +1,10 @@
 """
-CanAI Café — SARIMA forecasting model.
+CanAI Cafe - SARIMA forecasting model.
 
 Receives a prepared daily revenue Series and a TimeSeriesSplit object.
-Implement the TODOs below before running notebooks/03_forecasting_model.ipynb §4.
+Uses SARIMA(0,1,1)(0,1,1)[7] - the "airline model" configuration.
 
-Candidate orders (evaluate by AIC, see docs/model_selection_rationale.md §5.2):
-    SARIMA(1,0,1)(1,1,0)[7]
-    SARIMA(2,0,1)(1,1,1)[7]
-    SARIMA(1,0,2)(0,1,1)[7]
-
-Reference: docs/model_selection_rationale.md §5.2
+Reference: docs/model_selection_rationale.md S5.2
 """
 
 import numpy as np
@@ -23,8 +18,8 @@ MODEL_NAME = "sarima"
 
 # Hyperparameters — tune here, they are logged automatically on every run
 PARAMS = {
-    "order": (1, 0, 1),          # (p, d, q)
-    "seasonal_order": (1, 1, 0, 7),  # (P, D, Q, period)
+    "order": (0, 1, 1),          # (p, d, q)
+    "seasonal_order": (0, 1, 1, 7),  # (P, D, Q, period)
     "enforce_stationarity": True,
     "enforce_invertibility": True,
 }
@@ -46,14 +41,13 @@ def train(daily_revenue: pd.Series, train_idx) -> object:
     -------
     Fitted SARIMAXResults object.
     """
-    # TODO: implement
-    # from statsmodels.tsa.statespace.sarimax import SARIMAX
-    # series = daily_revenue.iloc[train_idx]
-    # model = SARIMAX(series, order=PARAMS["order"], seasonal_order=PARAMS["seasonal_order"],
-    #                 enforce_stationarity=PARAMS["enforce_stationarity"],
-    #                 enforce_invertibility=PARAMS["enforce_invertibility"])
-    # return model.fit(disp=False)
-    raise NotImplementedError
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    series = daily_revenue.iloc[train_idx]
+    series = series.asfreq("D")
+    model = SARIMAX(series, order=PARAMS["order"], seasonal_order=PARAMS["seasonal_order"],
+                    enforce_stationarity=PARAMS["enforce_stationarity"],
+                    enforce_invertibility=PARAMS["enforce_invertibility"])
+    return model.fit(disp=False)
 
 
 def evaluate(daily_revenue: pd.Series, tscv: TimeSeriesSplit) -> dict:
@@ -80,32 +74,29 @@ def evaluate(daily_revenue: pd.Series, tscv: TimeSeriesSplit) -> dict:
         mlflow.set_tag("phase", "cross_validation")
         mlflow.set_tag("n_folds", tscv.n_splits)
         mlflow.log_params({
-            "p": PARAMS["order"][0],
-            "d": PARAMS["order"][1],
-            "q": PARAMS["order"][2],
-            "P": PARAMS["seasonal_order"][0],
-            "D": PARAMS["seasonal_order"][1],
-            "Q": PARAMS["seasonal_order"][2],
-            "period": PARAMS["seasonal_order"][3],
+            "order_p": PARAMS["order"][0],
+            "order_d": PARAMS["order"][1],
+            "order_q": PARAMS["order"][2],
+            "seasonal_P": PARAMS["seasonal_order"][0],
+            "seasonal_D": PARAMS["seasonal_order"][1],
+            "seasonal_Q": PARAMS["seasonal_order"][2],
+            "seasonal_period": PARAMS["seasonal_order"][3],
         })
 
         for fold, (train_idx, test_idx) in enumerate(tscv.split(daily_revenue)):
-            # TODO: fit model on train slice, forecast test window
-            raise NotImplementedError
+            result  = train(daily_revenue, train_idx)
+            fc      = result.get_forecast(steps=len(test_idx))
+            preds   = fc.predicted_mean.values
+            actuals = daily_revenue.iloc[test_idx].values
 
-            # result  = train(daily_revenue, train_idx)
-            # fc      = result.get_forecast(steps=len(test_idx))
-            # preds   = fc.predicted_mean.values
-            # actuals = daily_revenue.iloc[test_idx].values
-            #
-            # mae  = mean_absolute_error(actuals, preds)
-            # rmse = np.sqrt(mean_squared_error(actuals, preds))
-            # mape = np.mean(np.abs((actuals - preds) / actuals)) * 100
-            #
-            # fold_mae.append(mae);  fold_rmse.append(rmse);  fold_mape.append(mape)
-            # mlflow.log_metric("fold_mae",  mae,  step=fold)
-            # mlflow.log_metric("fold_rmse", rmse, step=fold)
-            # mlflow.log_metric("fold_mape", mape, step=fold)
+            mae  = mean_absolute_error(actuals, preds)
+            rmse = np.sqrt(mean_squared_error(actuals, preds))
+            mape = np.mean(np.abs((actuals - preds) / actuals)) * 100
+
+            fold_mae.append(mae);  fold_rmse.append(rmse);  fold_mape.append(mape)
+            mlflow.log_metric("fold_mae",  mae,  step=fold)
+            mlflow.log_metric("fold_rmse", rmse, step=fold)
+            mlflow.log_metric("fold_mape", mape, step=fold)
 
         mlflow.log_metrics({
             "mean_mae":  np.mean(fold_mae),
@@ -144,32 +135,31 @@ def forecast(daily_revenue: pd.Series, periods: int = 180) -> pd.DataFrame:
     with mlflow.start_run(run_name=f"{MODEL_NAME}_final_forecast"):
         mlflow.set_tag("model", MODEL_NAME)
         mlflow.set_tag("phase", "final_forecast")
-        mlflow.log_params({**{
-            "p": PARAMS["order"][0], "d": PARAMS["order"][1], "q": PARAMS["order"][2],
-            "P": PARAMS["seasonal_order"][0], "D": PARAMS["seasonal_order"][1],
-            "Q": PARAMS["seasonal_order"][2], "period": PARAMS["seasonal_order"][3],
-        }, "forecast_periods": periods})
+        mlflow.log_params({
+            "order_p": PARAMS["order"][0], "order_d": PARAMS["order"][1], "order_q": PARAMS["order"][2],
+            "seasonal_P": PARAMS["seasonal_order"][0], "seasonal_D": PARAMS["seasonal_order"][1],
+            "seasonal_Q": PARAMS["seasonal_order"][2], "seasonal_period": PARAMS["seasonal_order"][3],
+            "forecast_periods": periods,
+        })
 
-        # TODO: fit on full series, forecast forward, aggregate to monthly
-        raise NotImplementedError
+        from statsmodels.tsa.statespace.sarimax import SARIMAX
+        series = daily_revenue.asfreq("D")
+        model = SARIMAX(series, order=PARAMS["order"],
+                        seasonal_order=PARAMS["seasonal_order"],
+                        enforce_stationarity=PARAMS["enforce_stationarity"],
+                        enforce_invertibility=PARAMS["enforce_invertibility"])
+        result = model.fit(disp=False)
+        fc = result.get_forecast(steps=periods)
+        pred_df = pd.DataFrame({
+            "date":  pd.date_range(daily_revenue.index[-1] + pd.Timedelta(days=1), periods=periods),
+            "yhat":  fc.predicted_mean.values,
+            "lower": fc.conf_int(alpha=0.05).iloc[:, 0].values,
+            "upper": fc.conf_int(alpha=0.05).iloc[:, 1].values,
+        })
+        pred_df["month"] = pred_df["date"].dt.to_period("M").astype(str)
+        monthly = pred_df.groupby("month")[["yhat", "lower", "upper"]].sum().reset_index()
+        monthly.columns = ["month", "forecasted_revenue", "lower_bound", "upper_bound"]
 
-        # from statsmodels.tsa.statespace.sarimax import SARIMAX
-        # model = SARIMAX(daily_revenue, order=PARAMS["order"],
-        #                 seasonal_order=PARAMS["seasonal_order"],
-        #                 enforce_stationarity=PARAMS["enforce_stationarity"],
-        #                 enforce_invertibility=PARAMS["enforce_invertibility"])
-        # result = model.fit(disp=False)
-        # fc = result.get_forecast(steps=periods)
-        # pred_df = pd.DataFrame({
-        #     "date":  pd.date_range(daily_revenue.index[-1] + pd.Timedelta(days=1), periods=periods),
-        #     "yhat":  fc.predicted_mean.values,
-        #     "lower": fc.conf_int(alpha=0.05).iloc[:, 0].values,
-        #     "upper": fc.conf_int(alpha=0.05).iloc[:, 1].values,
-        # })
-        # pred_df["month"] = pred_df["date"].dt.to_period("M").astype(str)
-        # monthly = pred_df.groupby("month")[["yhat", "lower", "upper"]].sum().reset_index()
-        # monthly.columns = ["month", "forecasted_revenue", "lower_bound", "upper_bound"]
-        #
-        # mlflow.log_metric("forecast_total_revenue", monthly["forecasted_revenue"].sum())
-        # mlflow.log_table(monthly, artifact_file="forecast_results.json")
-        # return monthly
+        mlflow.log_metric("forecast_total_revenue", monthly["forecasted_revenue"].sum())
+        mlflow.log_table(monthly, artifact_file="forecast_results.json")
+        return monthly
