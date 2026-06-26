@@ -8,3 +8,6 @@ jupyter
 ipykernel
 nbformat
 openpyxl
+mlflow
+xgboost
+statsmodels
