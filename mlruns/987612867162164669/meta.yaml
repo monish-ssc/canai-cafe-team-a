@@ -3,7 +3,7 @@ creation_time: 1782433641547
 effective_trace_archival_retention: null
 experiment_id: '987612867162164669'
 last_update_time: 1782433641547
-lifecycle_stage: active
-name: canai-cafe-forecasting
+lifecycle_stage: deleted
+name: canai-cafe-forecasting-khatr-archived
 trace_location: null
 workspace: default
